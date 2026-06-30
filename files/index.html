@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alloy Atlas — Engineering Material Selector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg: #15181b;
+    --surface: #1d2125;
+    --surface-2: #262b30;
+    --border: #343a40;
+    --text: #e9eaec;
+    --text-muted: #8d949b;
+    --accent: #c97c3d;     /* oxidized copper */
+    --accent-2: #6fa89e;   /* patina teal */
+    --accent-3: #d9b45f;   /* tarnished gold */
+    --accent-4: #c77b83;   /* dusty rose oxide */
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif; margin:0;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    padding:48px 40px 36px;
+    border-bottom:1px solid var(--border);
+    overflow:hidden;
+    background:
+      linear-gradient(30deg, var(--border) 12%, transparent 12.5%, transparent 87%, var(--border) 87.5%, var(--border)) ,
+      linear-gradient(150deg, var(--border) 12%, transparent 12.5%, transparent 87%, var(--border) 87.5%, var(--border)),
+      linear-gradient(30deg, var(--border) 12%, transparent 12.5%, transparent 87%, var(--border) 87.5%, var(--border)),
+      linear-gradient(150deg, var(--border) 12%, transparent 12.5%, transparent 87%, var(--border) 87.5%, var(--border)),
+      var(--bg);
+    background-size:64px 112px;
+    background-position:0 0, 0 0, 32px 56px, 32px 56px;
+    opacity:1;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(ellipse at top left, rgba(21,24,27,0.2), var(--bg) 75%);
+  }
+  .hero-inner{position:relative; z-index:1; max-width:1100px;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.08em;
+    color:var(--accent); text-transform:uppercase; margin-bottom:14px;
+  }
+  .eyebrow::before{content:"⬡"; font-size:14px;}
+  .hero h1{font-size:38px; font-weight:700; letter-spacing:-0.01em;}
+  .hero p{max-width:620px; color:var(--text-muted); font-size:15px; line-height:1.6; margin-top:10px;}
+  .hero-stats{display:flex; gap:28px; margin-top:24px; flex-wrap:wrap;}
+  .hero-stat .num{font-family:'JetBrains Mono',monospace; font-size:22px; color:var(--accent-2); font-weight:500;}
+  .hero-stat .label{font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;}
+
+  /* ---------- layout ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:240px 1fr 340px;
+    gap:20px;
+    padding:28px 40px 60px;
+    max-width:1500px;
+    margin:0 auto;
+  }
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:18px;
+  }
+  .panel h3{font-size:13px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:14px;}
+
+  /* ---------- filters ---------- */
+  .filters{align-self:start; position:sticky; top:20px;}
+  .filter-group{margin-bottom:20px;}
+  .filter-group:last-child{margin-bottom:0;}
+  .filter-group label.section-label{display:block; font-size:12px; color:var(--text-muted); margin-bottom:8px;}
+  .check-row{display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:7px; cursor:pointer;}
+  .check-row input{accent-color:var(--accent); width:14px; height:14px; cursor:pointer;}
+  .slider-row{margin-bottom:14px;}
+  .slider-row .slider-head{display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;}
+  .slider-row .slider-head span.val{color:var(--accent-2); font-family:'JetBrains Mono',monospace;}
+  input[type="range"]{width:100%; accent-color:var(--accent);}
+  .reset-btn{
+    width:100%; margin-top:6px; padding:9px; border-radius:6px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--text-muted); font-size:12px; cursor:pointer;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .reset-btn:hover{color:var(--text); border-color:var(--accent);}
+
+  /* ---------- results ---------- */
+  .results-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px;}
+  .results-head .count{font-size:13px; color:var(--text-muted);}
+  .results-head .hint{font-size:12px; color:var(--accent-2);}
+  .cards{display:grid; grid-template-columns:repeat(2, 1fr); gap:14px;}
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:16px; cursor:pointer; transition:border-color .15s, transform .1s;
+  }
+  .card:hover{border-color:var(--accent-2);}
+  .card.selected{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset;}
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;}
+  .card-name{font-size:15px; font-weight:600;}
+  .card-tag{
+    font-size:10px; text-transform:uppercase; letter-spacing:0.04em; padding:3px 7px;
+    border-radius:4px; color:var(--bg); font-weight:600; white-space:nowrap;
+  }
+  .card-stats{display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; font-size:12px; color:var(--text-muted);}
+  .card-stats b{color:var(--text); font-family:'JetBrains Mono',monospace; font-weight:500;}
+  .empty-state{grid-column:1/-1; text-align:center; padding:50px 20px; color:var(--text-muted); font-size:13px;}
+
+  /* ---------- insights ---------- */
+  .insights{display:flex; flex-direction:column; gap:18px;}
+  .radar-panel canvas{width:100%; max-height:260px;}
+  .radar-empty{font-size:12px; color:var(--text-muted); text-align:center; padding:30px 10px;}
+  .legend{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; font-size:11px;}
+  .legend-item{display:flex; align-items:center; gap:6px; color:var(--text-muted);}
+  .legend-dot{width:9px; height:9px; border-radius:50%;}
+
+  .lb-row{display:grid; grid-template-columns:90px 1fr 56px; align-items:center; gap:8px; margin-bottom:10px; font-size:12px;}
+  .lb-name{color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .lb-bar-track{height:8px; background:var(--surface-2); border-radius:4px; overflow:hidden;}
+  .lb-bar-fill{height:100%; border-radius:4px;}
+  .lb-val{font-family:'JetBrains Mono',monospace; color:var(--text-muted); text-align:right;}
+
+  footer{
+    border-top:1px solid var(--border); padding:18px 40px; text-align:center;
+    color:var(--text-muted); font-size:11px; font-family:'JetBrains Mono',monospace;
+  }
+
+  @media (max-width:1100px){
+    .layout{grid-template-columns:1fr; }
+    .filters{position:static;}
+    .cards{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .card{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Material Informatics</div>
+    <h1>Alloy Atlas</h1>
+    <p>A selection and comparison tool for engineering materials. Filter by category and property targets, then compare up to four candidates on a normalized property radar — built for the kind of trade-off decisions made in materials selection coursework.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num" id="statTotal">15</div><div class="label">Materials catalogued</div></div>
+      <div class="hero-stat"><div class="num">6</div><div class="label">Property axes</div></div>
+      <div class="hero-stat"><div class="num">4</div><div class="label">Max compare slots</div></div>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- FILTERS -->
+  <aside class="panel filters">
+    <h3>Filters</h3>
+    <div class="filter-group">
+      <label class="section-label">Category</label>
+      <div id="categoryChecks"></div>
+    </div>
+    <div class="filter-group">
+      <div class="slider-row">
+        <div class="slider-head"><span>Min. yield strength</span><span class="val" id="minYieldVal">0 MPa</span></div>
+        <input type="range" id="minYield" min="0" max="900" step="10" value="0">
+      </div>
+      <div class="slider-row">
+        <div class="slider-head"><span>Max. density</span><span class="val" id="maxDensityVal">9.0 g/cm³</span></div>
+        <input type="range" id="maxDensity" min="1" max="9" step="0.1" value="9">
+      </div>
+      <div class="slider-row">
+        <div class="slider-head"><span>Max. cost index</span><span class="val" id="maxCostVal">10</span></div>
+        <input type="range" id="maxCost" min="1" max="10" step="1" value="10">
+      </div>
+      <button class="reset-btn" id="resetBtn">RESET FILTERS</button>
+    </div>
+  </aside>
+
+  <!-- RESULTS -->
+  <section class="results">
+    <div class="results-head">
+      <div class="count" id="resultCount">15 materials match</div>
+      <div class="hint">Click up to 4 cards to compare →</div>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <aside class="insights">
+    <div class="panel radar-panel">
+      <h3>Property comparison</h3>
+      <div id="radarWrap">
+        <canvas id="radarChart"></canvas>
+      </div>
+      <div class="legend" id="radarLegend"></div>
+    </div>
+    <div class="panel">
+      <h3>Specific strength leaderboard</h3>
+      <div id="leaderboardList"></div>
+    </div>
+  </aside>
+
+</main>
+
+<footer>ALLOY ATLAS · DATA IS APPROXIMATE / TYPICAL HANDBOOK VALUES, FOR DEMONSTRATION ONLY</footer>
+
+<script>
+/* ===================== DATA ===================== */
+const CATEGORY_COLORS = {
+  "Ferrous":      "#a8b0b8",
+  "Light Alloy":  "#6fa89e",
+  "Copper Alloy": "#c97c3d",
+  "Polymer":      "#d9b45f",
+  "Ceramic":      "#c77b83",
+  "Composite":    "#8e8fd9"
+};
+
+const MATERIALS = [
+  {id:"steel_mild",  name:"Mild Steel (AISI 1018)",        category:"Ferrous",      density:7.87, yield:370, modulus:200, cost:2, maxTemp:500,  corrosion:2},
+  {id:"steel_ss304", name:"Stainless Steel 304",            category:"Ferrous",      density:8.00, yield:215, modulus:193, cost:5, maxTemp:870,  corrosion:5},
+  {id:"steel_1095",  name:"High Carbon Steel (1095)",       category:"Ferrous",      density:7.85, yield:525, modulus:200, cost:3, maxTemp:500,  corrosion:2},
+  {id:"al_6061",     name:"Aluminium 6061-T6",              category:"Light Alloy",  density:2.70, yield:276, modulus:68.9, cost:4, maxTemp:200, corrosion:4},
+  {id:"al_7075",     name:"Aluminium 7075-T6",              category:"Light Alloy",  density:2.81, yield:503, modulus:71.7, cost:6, maxTemp:150, corrosion:3},
+  {id:"ti_6al4v",    name:"Titanium Ti-6Al-4V",             category:"Light Alloy",  density:4.43, yield:880, modulus:113.8,cost:9, maxTemp:400, corrosion:5},
+  {id:"brass",       name:"Brass (C26000)",                 category:"Copper Alloy", density:8.53, yield:124, modulus:110, cost:5, maxTemp:200,  corrosion:4},
+  {id:"bronze",      name:"Bronze (C90500)",                category:"Copper Alloy", density:8.80, yield:150, modulus:103, cost:6, maxTemp:250,  corrosion:4},
+  {id:"nylon66",     name:"Nylon 6/6",                      category:"Polymer",      density:1.14, yield:82.7,modulus:2.8, cost:2, maxTemp:90,   corrosion:5},
+  {id:"pvc",         name:"PVC (rigid)",                    category:"Polymer",      density:1.38, yield:52,  modulus:3.0, cost:1, maxTemp:60,   corrosion:5},
+  {id:"abs",         name:"ABS",                            category:"Polymer",      density:1.05, yield:40,  modulus:2.3, cost:2, maxTemp:80,   corrosion:4},
+  {id:"alumina",     name:"Alumina (Al₂O₃)",                category:"Ceramic",      density:3.95, yield:300, modulus:370, cost:6, maxTemp:1700, corrosion:5},
+  {id:"sic",         name:"Silicon Carbide (SiC)",          category:"Ceramic",      density:3.10, yield:400, modulus:410, cost:8, maxTemp:1600, corrosion:5},
+  {id:"cfrp",        name:"CFRP (Carbon Fibre Composite)",  category:"Composite",    density:1.55, yield:600, modulus:70,  cost:9, maxTemp:150,  corrosion:5},
+  {id:"gfrp",        name:"GFRP (Glass Fibre Composite)",   category:"Composite",    density:1.85, yield:350, modulus:25,  cost:5, maxTemp:120,  corrosion:5},
+];
+
+const RANGES = {};
+["density","yield","modulus","cost","maxTemp","corrosion"].forEach(key=>{
+  const vals = MATERIALS.map(m=>m[key]);
+  RANGES[key] = {min:Math.min(...vals), max:Math.max(...vals)};
+});
+
+/* ===================== STATE ===================== */
+let activeCategories = new Set(Object.keys(CATEGORY_COLORS));
+let selected = [];               // array of material ids, max 4
+const COMPARE_COLORS = ["#c97c3d","#6fa89e","#d9b45f","#c77b83"];
+
+/* ===================== HELPERS ===================== */
+function norm(value, key, invert=false){
+  const {min,max} = RANGES[key];
+  if(max===min) return 50;
+  let pct = (value-min)/(max-min)*100;
+  return invert ? 100-pct : pct;
+}
+function specificStrength(m){ return m.yield / m.density; }
+
+function getFiltered(){
+  const minYield = parseFloat(document.getElementById('minYield').value);
+  const maxDensity = parseFloat(document.getElementById('maxDensity').value);
+  const maxCost = parseFloat(document.getElementById('maxCost').value);
+  return MATERIALS.filter(m =>
+    activeCategories.has(m.category) &&
+    m.yield >= minYield &&
+    m.density <= maxDensity &&
+    m.cost <= maxCost
+  );
+}
+
+/* ===================== RENDER: FILTERS ===================== */
+function renderCategoryChecks(){
+  const wrap = document.getElementById('categoryChecks');
+  wrap.innerHTML = '';
+  Object.keys(CATEGORY_COLORS).forEach(cat=>{
+    const row = document.createElement('label');
+    row.className = 'check-row';
+    row.innerHTML = `<input type="checkbox" checked data-cat="${cat}">
+      <span style="width:8px;height:8px;border-radius:50%;background:${CATEGORY_COLORS[cat]};display:inline-block;"></span>
+      ${cat}`;
+    row.querySelector('input').addEventListener('change', e=>{
+      if(e.target.checked) activeCategories.add(cat); else activeCategories.delete(cat);
+      renderAll();
+    });
+    wrap.appendChild(row);
+  });
+}
+
+['minYield','maxDensity','maxCost'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', ()=>{
+    document.getElementById('minYieldVal').textContent = document.getElementById('minYield').value + ' MPa';
+    document.getElementById('maxDensityVal').textContent = parseFloat(document.getElementById('maxDensity').value).toFixed(1) + ' g/cm³';
+    document.getElementById('maxCostVal').textContent = document.getElementById('maxCost').value;
+    renderAll();
+  });
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  document.getElementById('minYield').value = 0;
+  document.getElementById('maxDensity').value = 9;
+  document.getElementById('maxCost').value = 10;
+  document.getElementById('minYieldVal').textContent = '0 MPa';
+  document.getElementById('maxDensityVal').textContent = '9.0 g/cm³';
+  document.getElementById('maxCostVal').textContent = '10';
+  activeCategories = new Set(Object.keys(CATEGORY_COLORS));
+  selected = [];
+  renderAll();
+});
+
+/* ===================== RENDER: CARDS ===================== */
+function renderCards(list){
+  const wrap = document.getElementById('cards');
+  document.getElementById('resultCount').textContent = `${list.length} material${list.length!==1?'s':''} match`;
+  if(list.length===0){
+    wrap.innerHTML = `<div class="empty-state">No material satisfies these constraints. Try loosening a filter.</div>`;
+    return;
+  }
+  wrap.innerHTML = '';
+  list.forEach(m=>{
+    const card = document.createElement('div');
+    card.className = 'card' + (selected.includes(m.id) ? ' selected' : '');
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="card-name">${m.name}</div>
+        <div class="card-tag" style="background:${CATEGORY_COLORS[m.category]}">${m.category}</div>
+      </div>
+      <div class="card-stats">
+        <div>Density <b>${m.density.toFixed(2)} g/cm³</b></div>
+        <div>Yield <b>${m.yield} MPa</b></div>
+        <div>Modulus <b>${m.modulus} GPa</b></div>
+        <div>Cost idx <b>${m.cost}/10</b></div>
+        <div>Max temp <b>${m.maxTemp}°C</b></div>
+        <div>Corrosion <b>${m.corrosion}/5</b></div>
+      </div>`;
+    card.addEventListener('click', ()=>toggleSelect(m.id));
+    wrap.appendChild(card);
+  });
+}
+
+function toggleSelect(id){
+  if(selected.includes(id)){
+    selected = selected.filter(s=>s!==id);
+  } else {
+    if(selected.length>=4) selected.shift(); // drop oldest selection
+    selected.push(id);
+  }
+  renderAll();
+}
+
+/* ===================== RENDER: RADAR ===================== */
+let radarChartInstance = null;
+const AXES = [
+  {key:'yield',    label:'Strength',   invert:false},
+  {key:'modulus',  label:'Stiffness',  invert:false},
+  {key:'density',  label:'Lightness',  invert:true},
+  {key:'cost',     label:'Affordability', invert:true},
+  {key:'corrosion',label:'Corrosion Res.', invert:false},
+  {key:'maxTemp',  label:'Heat Res.',  invert:false},
+];
+
+function renderRadar(){
+  const ctx = document.getElementById('radarChart');
+  const legend = document.getElementById('radarLegend');
+  const selectedMaterials = selected.map(id=>MATERIALS.find(m=>m.id===id)).filter(Boolean);
+
+  if(radarChartInstance){ radarChartInstance.destroy(); radarChartInstance=null; }
+
+  if(selectedMaterials.length===0){
+    ctx.style.display='none';
+    legend.innerHTML = `<div class="radar-empty">Select up to 4 material cards to see a normalized property comparison here.</div>`;
+    return;
+  }
+  ctx.style.display='block';
+  legend.innerHTML='';
+
+  const datasets = selectedMaterials.map((m,i)=>{
+    const color = COMPARE_COLORS[i];
+    legend.innerHTML += `<div class="legend-item"><span class="legend-dot" style="background:${color}"></span>${m.name}</div>`;
+    return {
+      label:m.name,
+      data:AXES.map(a=>norm(m[a.key], a.key, a.invert)),
+      borderColor:color,
+      backgroundColor:color+'33',
+      pointBackgroundColor:color,
+      borderWidth:2,
+    };
+  });
+
+  radarChartInstance = new Chart(ctx, {
+    type:'radar',
+    data:{ labels:AXES.map(a=>a.label), datasets },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      scales:{
+        r:{
+          min:0, max:100,
+          ticks:{display:false, stepSize:25},
+          grid:{color:'#343a40'},
+          angleLines:{color:'#343a40'},
+          pointLabels:{color:'#8d949b', font:{size:11, family:'Inter'}}
+        }
+      },
+      plugins:{ legend:{display:false} }
+    }
+  });
+}
+
+/* ===================== RENDER: LEADERBOARD ===================== */
+function renderLeaderboard(list){
+  const wrap = document.getElementById('leaderboardList');
+  const ranked = [...list].sort((a,b)=>specificStrength(b)-specificStrength(a)).slice(0,8);
+  if(ranked.length===0){ wrap.innerHTML = `<div class="radar-empty">No matches to rank.</div>`; return; }
+  const maxVal = specificStrength(ranked[0]);
+  wrap.innerHTML = ranked.map(m=>{
+    const val = specificStrength(m);
+    const pct = (val/maxVal*100).toFixed(1);
+    return `<div class="lb-row">
+      <div class="lb-name" title="${m.name}">${m.name}</div>
+      <div class="lb-bar-track"><div class="lb-bar-fill" style="width:${pct}%; background:${CATEGORY_COLORS[m.category]}"></div></div>
+      <div class="lb-val">${val.toFixed(0)}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ===================== MASTER RENDER ===================== */
+function renderAll(){
+  const filtered = getFiltered();
+  renderCards(filtered);
+  renderRadar();
+  renderLeaderboard(filtered);
+}
+
+renderCategoryChecks();
+renderAll();
+</script>
+</body>
+</html>

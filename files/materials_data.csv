@@ -1,0 +1,16 @@
+id,name,category,density_g_cm3,yield_strength_MPa,modulus_GPa,cost_index,max_service_temp_C,corrosion_resistance
+steel_mild,Mild Steel (AISI 1018),Ferrous,7.87,370,200,2,500,2
+steel_ss304,Stainless Steel 304,Ferrous,8.00,215,193,5,870,5
+steel_1095,High Carbon Steel (1095),Ferrous,7.85,525,200,3,500,2
+al_6061,Aluminium 6061-T6,Light Alloy,2.70,276,68.9,4,200,4
+al_7075,Aluminium 7075-T6,Light Alloy,2.81,503,71.7,6,150,3
+ti_6al4v,Titanium Ti-6Al-4V,Light Alloy,4.43,880,113.8,9,400,5
+brass,Brass (C26000),Copper Alloy,8.53,124,110,5,200,4
+bronze,Bronze (C90500),Copper Alloy,8.80,150,103,6,250,4
+nylon66,Nylon 6/6,Polymer,1.14,82.7,2.8,2,90,5
+pvc,PVC (rigid),Polymer,1.38,52,3.0,1,60,5
+abs,ABS,Polymer,1.05,40,2.3,2,80,4
+alumina,Alumina (Al2O3),Ceramic,3.95,300,370,6,1700,5
+sic,Silicon Carbide (SiC),Ceramic,3.10,400,410,8,1600,5
+cfrp,CFRP (Carbon Fibre Composite),Composite,1.55,600,70,9,150,5
+gfrp,GFRP (Glass Fibre Composite),Composite,1.85,350,25,5,120,5
