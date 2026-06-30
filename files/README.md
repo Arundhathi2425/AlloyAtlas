@@ -1,50 +1,131 @@
-# Alloy Atlas — Engineering Material Selector & Analyzer
+# 🧪 Alloy Atlas – Engineering Material Selector & Analyzer
 
-A two-part project for selecting and comparing engineering materials, built to bridge a
-Metallurgical & Materials Science background with software development skills.
+A materials selection and analysis tool developed to combine **Metallurgical & Materials Science** concepts with **software development**. The project enables users to compare engineering materials using key mechanical and physical properties while demonstrating data analysis through Python.
 
-## What's in here
+---
 
-| File | What it does | Skills shown |
-|---|---|---|
-| `index.html` | Interactive web app: filter ~15 materials by category, strength, density and cost; compare up to 4 on a normalized radar chart; see a specific-strength leaderboard | HTML, CSS, JavaScript (DOM manipulation, event handling, Chart.js) |
-| `materials_analysis.py` | Loads the same dataset, computes specific strength/stiffness, category-wise stats, and exports a ranked bar chart | Python, pandas, matplotlib |
-| `materials_data.csv` | Shared dataset (15 materials × 8 properties: density, yield strength, modulus, cost, max service temperature, corrosion resistance) | Data structuring |
+## 📌 Project Overview
 
-## Why this dataset / these metrics
+Alloy Atlas helps users evaluate engineering materials based on properties such as:
 
-- **Specific strength** (yield strength ÷ density) and **specific stiffness** (modulus ÷ density)
-  are standard first-pass screening metrics in materials selection for weight-critical
-  applications (aerospace, automotive) — covered in Introduction to Engineering Materials /
-  Deformation Behaviour of Materials.
-- The radar chart axes (Strength, Stiffness, Lightness, Affordability, Corrosion Resistance,
-  Heat Resistance) let you see the classic trade-offs at a glance — e.g. titanium alloys
-  win on strength-to-weight but lose hard on cost; polymers win on cost but lose on
-  heat resistance.
+- Yield Strength
+- Density
+- Young's Modulus
+- Cost
+- Maximum Service Temperature
+- Corrosion Resistance
 
-## Running it
+The project consists of:
 
-**Web app:** just open `index.html` in any browser — no build step, no server needed.
+- 🌐 A web application for interactive material comparison.
+- 📊 A Python-based analysis script for engineering calculations and visualization.
 
-**Python script:**
+---
+
+## ✨ Features
+
+- Compare up to **4 engineering materials**
+- Filter materials by category
+- Interactive radar chart visualization
+- Specific Strength ranking
+- Specific Stiffness calculation
+- Category-wise material statistics
+- Export ranked analysis charts
+
+---
+
+## 🛠️ Technologies Used
+
+- HTML5
+- CSS3
+- JavaScript
+- Chart.js
+- Python
+- Pandas
+- Matplotlib
+
+---
+
+## 📂 Project Structure
+
+```
+AlloyAtlas/
+│── index.html
+│── materials_analysis.py
+│── materials_data.csv
+│── specific_strength.py
+│── requirements.txt
+└── README.md
+```
+
+---
+
+## 📊 Engineering Concepts Used
+
+The project applies several materials engineering concepts including:
+
+- Specific Strength
+- Specific Stiffness
+- Material Selection
+- Density-Based Comparison
+- Mechanical Property Analysis
+- Weight-Critical Design
+
+These metrics are widely used in aerospace, automotive, and structural engineering applications.
+
+---
+
+## 🚀 Running the Project
+
+### Web Application
+
+Simply open:
+
+```
+index.html
+```
+
+in your browser.
+
+### Python Analysis
+
+Install the dependencies:
+
 ```bash
-pip install pandas matplotlib
+pip install -r requirements.txt
+```
+
+Run:
+
+```bash
 python materials_analysis.py
 ```
 
-## Possible extensions (good "future work" line for interviews)
+---
 
-- Replace the hardcoded dataset with a scraped/larger materials database (e.g. MatWeb)
-- Add a regression model (scikit-learn) to predict yield strength from alloy composition
-- Convert the dataset loader into a small Flask/FastAPI backend so the web app queries
-  live data instead of an embedded array
-- Add real tensile-test CSV import + stress-strain curve plotting (ties into lab data)
+## 🔮 Future Improvements
 
-## Suggested CV bullet points
+- Larger engineering materials database
+- AI-based material recommendation
+- Machine Learning prediction of material properties
+- Flask/FastAPI backend
+- Stress–strain curve visualization
+- Material cost-performance optimization
 
-- *Built a materials selection tool (HTML/CSS/JS + Chart.js) that filters and visually
-  compares 15 engineering materials across 6 normalized property axes, including a
-  specific-strength ranking algorithm grounded in materials science coursework.*
-- *Wrote a pandas/matplotlib analysis script computing specific strength and stiffness
-  across material categories to support weight-critical material selection, exporting
-  ranked visualizations.*
+---
+
+## 📸 Screenshots
+
+_Add screenshots here after uploading them to the repository._
+
+---
+
+## 👩‍💻 Author
+
+**Arundhathi**
+
+Metallurgical & Materials Engineering  
+Indian Institute of Technology Kharagpur
+
+---
+
